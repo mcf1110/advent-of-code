@@ -23,7 +23,7 @@ function test2(){
 const isValidDivision = division => division > 1 && Number.isInteger(division)
 const getAllDivisions = row => row.map(x => row.map(y => x/y).filter(isValidDivision).reduce(sum, 0)).reduce(sum, 0)
 const checkSum2 = (matrix) => matrix.map(getAllDivisions).reduce(sum, 0)
-test2()
+//test2()
 
 let realDeal =  [[4347, 3350, 196, 162, 233, 4932, 4419, 3485, 4509, 4287, 4433, 4033, 207, 3682, 2193, 4223],
                 [648, 94, 778, 957, 1634, 2885, 1964, 2929, 2754, 89, 972, 112, 80, 2819, 543, 2820],
@@ -42,4 +42,4 @@ let realDeal =  [[4347, 3350, 196, 162, 233, 4932, 4419, 3485, 4509, 4287, 4433,
                 [401, 151, 309, 961, 124, 1027, 1084, 389, 1150, 166, 1057, 137, 932, 669, 590, 188],
                 [784, 232, 363, 316, 336, 666, 711, 430, 192, 867, 628, 57, 222, 575, 622, 234]]
 
-//console.log(checkSum(realDeal))
+//console.log(checkSum2(realDeal))
