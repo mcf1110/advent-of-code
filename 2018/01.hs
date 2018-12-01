@@ -6,16 +6,13 @@ module Day01 where
   parse n = read n
 
   freqTwice :: [Int] -> Int
-  freqTwice a = findTwice [] freqs
-    where freqs = scanl (+) 0 $ cycle a
+  freqTwice a = findTwice [] $ scanl (+) 0 $ cycle a
 
   findTwice :: [Int] -> [Int] -> Int
   findTwice seen (x:rest)
     | x `elem` seen = x
     | otherwise = findTwice (x:seen) rest
-  findTwice seen ([]) = head seen
 
-  main = sum <$> (map parse) <$> lines <$> readFile "01.txt" >>= print
-
-
-  main2 = freqTwice <$> (map parse) <$> lines <$> readFile "01.txt" >>= print
+  myInput = (map parse) <$> lines <$> readFile "01.txt"
+  part1 = myInput >>= print . sum
+  part2 = myInput >>= print . freqTwice
