@@ -1,6 +1,7 @@
 module Day02 where
   import qualified Data.Map as Map
   import Data.List
+  import Data.Bifunctor (bimap)
 
   myInput = lines <$> readFile "02.txt"
 
@@ -13,7 +14,8 @@ module Day02 where
       m = Map.elems $ count s
       n x =  fromEnum $ not $ null $ filter (== x) m
 
-  solvePart1 a = uncurry (*) $ foldl1 (\(x1, x2) (y1, y2) -> (x1+y1, x2+y2)) $ map idToCount a
+  --solvePart1 a = uncurry (*) $ foldl1 (\(x1, x2) (y1, y2) -> (x1+y1, x2+y2)) $ map idToCount a
+  solvePart1 a =  uncurry (*) $ bimap sum sum $ unzip $ map idToCount a
 
   allPossible :: Eq a => [a] -> [(a, a)]
   allPossible ls = [(x,y) | x <- ls, y <- ls, x /= y]
