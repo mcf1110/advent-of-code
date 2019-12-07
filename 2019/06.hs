@@ -1,28 +1,23 @@
 module Day6 where
   import Data.Maybe (catMaybes)
+  import qualified Data.Map as M
   import Data.List
 
-  parse :: String -> [Orbit]
-  parse str = 
-    (\(a, _:b) -> (a,b)) <$> 
+  parse :: String -> OrbitMap
+  parse str = M.fromList $
+    (\(a, _:b) -> (b,a)) <$> 
     span (/= ')') <$> 
     lines str
 
-  type Orbit = (String, String)
+  type OrbitMap = M.Map String String
 
   t = [("COM","B"),("B","C"), ("C", "D")]
 
-  look :: [Orbit] -> String -> Orbit
-  look [] _ = error "No orbit"
-  look (o@(_,s):xs) str
-    | str == s = o
-    | otherwise = look xs str
+  distance :: OrbitMap -> String -> Int
+  distance _ "COM" = 1
+  distance o a = 1 + (distance o $ o M.! a)
 
-  distance :: [Orbit] -> Orbit -> Int
-  distance _ ("COM", _) = 1
-  distance os (a, b) = 1 + (distance os $ look os a)
-
-  solve :: [Orbit] -> Int
+  solve :: OrbitMap -> Int
   solve os = sum $ distance os <$> os
 
   main = do
