@@ -31,5 +31,5 @@ module Day6 where
       diff = takeWhile (flip (elem) santa) you
 
   main = do
-    text <- readFile "./Day6.txt"
+    text <- readFile "./06.txt"
     print $ part2 $ parse text
