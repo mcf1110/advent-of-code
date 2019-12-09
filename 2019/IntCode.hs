@@ -1,4 +1,4 @@
-module IntCode (run) where
+module IntCode where
     import qualified Data.Sequence as S
     import Data.List (findIndex, intersperse)
     import Control.Monad (sequence)
