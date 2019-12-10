@@ -1,4 +1,4 @@
-module Main where
+module Day10 where
     import Data.List (elemIndices, nub, delete, sortBy)
     import Data.Tuple (swap)
     import Data.Maybe (catMaybes)
