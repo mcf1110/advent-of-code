@@ -141,8 +141,23 @@ module IntCode where
         Just pgSt' -> runProgram pgSt'
         Nothing -> (m, o)
     
-    extend :: Memory -> Memory
-    extend (p, seq) = (p, S.fromList $ (toList seq) ++ replicate 500 0)
+    runUntilOutput :: ProgramState -> Maybe (ProgramState, Int)
+    runUntilOutput pgSt@(_, _, _, []) = case runIteration pgSt of
+        Just pgSt' -> runUntilOutput pgSt'
+        Nothing -> Nothing
+    runUntilOutput pgSt@(_, _, _, o:os) = Just (removeOutput pgSt, o)
+
+    removeOutput :: ProgramState -> ProgramState
+    removeOutput (m, b, i, _) = (m, b, i, [])
+
+    addInputs :: Inputs -> ProgramState -> ProgramState
+    addInputs is (m, b, i, o) = (m, b, i ++ is, o)
+    
+    extendMem :: Memory -> Memory
+    extendMem (p, seq) = (p, S.fromList $ (toList seq) ++ replicate 500 0)
+
+    strToProgram :: String -> Inputs -> ProgramState
+    strToProgram s i = (extendMem (strToMemory s), 0, i, [])
 
     run :: String -> Inputs -> Outputs
-    run s i = reverse $ snd $ runProgram (extend (strToMemory s), 0, i, [])
+    run s = reverse . snd . runProgram . (strToProgram s)
