@@ -1,7 +1,7 @@
 module Day11 where
     import qualified IntCode as IC
     import qualified Data.Map as M
-    import Data.List (nub)
+    import qualified Data.Matrix as Mx
     
     type Pos = (Int, Int)
     data Color = Black | White deriving (Show, Eq)
@@ -44,8 +44,11 @@ module Day11 where
 
     type RobotState = (Robot, M.Map Pos Color)
 
+    initStatePart1 :: RobotState
+    initStatePart1 = (initRobot, M.empty)
+
     initState :: RobotState
-    initState = (initRobot, M.empty)
+    initState = (initRobot, M.fromList [((0,0), White)])
 
     instruction :: (Int, Int) -> RobotState -> RobotState
     instruction (color, cw) (r, cmds) = (newR, newCmds)
@@ -75,6 +78,26 @@ module Day11 where
     part1 :: RobotState -> Int
     part1  = length . snd
 
+    normalizeSpace :: [Pos] -> [Pos]
+    normalizeSpace ps = map n ps
+        where
+            minx = minimum $ map fst ps
+            miny = minimum $ map snd ps
+            n (x,y) = (x-minx, y-miny)
+    
+    draw :: [Pos] -> String
+    draw ps = unlines $ reverse $ Mx.toLists $ Mx.transpose $ go ps initM
+        where
+            w = maximum $ map fst  ps
+            h = maximum $ map snd ps
+            initM = Mx.fromList (w+1) (h+1) (repeat ' ')
+            go pos m = case pos of
+                (x, y):rest -> go rest $ Mx.setElem '#' (x+1, y+1) m
+                [] -> m
+
+    part2 rs = draw $ normalizeSpace $ M.keys $ M.filter (==White) (snd rs)
+
     main = do
         str <- readFile "11.txt"
         print $ part1 $ runRobot str
+        putStr $ part2 $ runRobot str
