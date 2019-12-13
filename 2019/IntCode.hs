@@ -147,6 +147,14 @@ module IntCode where
         Nothing -> Nothing
     runUntilOutput pgSt@(_, _, _, o:os) = Just (removeOutput pgSt, o)
 
+    runUntilAsksForInput :: ProgramState -> Maybe (ProgramState, Outputs)
+    runUntilAsksForInput pgSt = case runIteration pgSt of
+        Nothing -> Nothing
+        Just pgSt'@(m, _, [], o) -> case parseMemory m of
+            In _ -> Just (removeOutput pgSt', reverse o)
+            _ -> runUntilAsksForInput pgSt'
+        Just pgSt' -> runUntilAsksForInput pgSt'
+
     removeOutput :: ProgramState -> ProgramState
     removeOutput (m, b, i, _) = (m, b, i, [])
 
