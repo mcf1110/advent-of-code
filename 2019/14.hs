@@ -44,7 +44,7 @@ module Day14 where
         Nothing -> cost $ head rs'
         Just n -> if n >= amt 
             then (0, M.adjust (\x -> x - amt) elName sp) 
-            else 
+            else cost $ head rs'
         where 
             rs' = rs ! e
             cost (ins, (produced, el)) = traceShow m' $ (c, m')
