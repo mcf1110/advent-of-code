@@ -5,7 +5,7 @@ module Day14 where
 
     import qualified Data.Map.Strict as M
 
-    reactions = "10 ORE => 10 A\n1 ORE => 1 B\n7 A, 1 B => 1 C\n7 A, 1 C => 1 D\n7 A, 1 D => 1 E\n7 A, 1 E => 1 FUEL"
+    reactions = "157 ORE => 5 NZVS\n165 ORE => 6 DCFZ\n44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL\n12 HKGWZ, 1 GPVTF, 8 PSHF => 9 QDVJ\n179 ORE => 7 PSHF\n177 ORE => 5 HKGWZ\n7 DCFZ, 7 PSHF => 2 XJWVT\n165 ORE => 2 GPVTF\n3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT"
 
     type Element = (Int, String)
     type Reaction = ([Element], Element)
@@ -40,16 +40,17 @@ module Day14 where
     getMinCost :: [Reaction] -> Spare -> Element -> (Int, Spare)
     getMinCost _ sp (x, "ORE") = (x, sp)
     -- getMinCost rs sp e@(amt, _) = minimum $ map cost rs'
-    getMinCost rs sp e@(amt, elName) = case sp M.!? elName of
+    getMinCost rs sp e@(amt, elName) = case sp M.!? (traceShowId elName) of
         Nothing -> cost $ head rs'
         Just n -> if n >= amt 
             then (0, M.adjust (\x -> x - amt) elName sp) 
             else cost $ head rs'
         where 
             rs' = rs ! e
-            cost (ins, (produced, el)) = traceShow m' $ (c, m')
+            cost (ins, (produced, el)) = traceShowId $ (c, m')
                 where 
-                    (c, m) = solve $ getMinCost rs sp <$> ins
+                    f el (c1, sp') = (\(c2, sp'') -> (c1+c2, sp'')) (getMinCost rs sp' el)
+                    (c, m) = foldr f (0, sp) ins -- getMinCost rs sp
                     m' = M.unionWith (+) m $ M.singleton el (produced-amt)
     
     parse :: String -> [Reaction]
