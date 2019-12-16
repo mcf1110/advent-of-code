@@ -44,11 +44,18 @@ module Day14 where
     parse :: String -> [Reaction]
     parse = (map toReaction) . lines
 
+    howMuchToProduceFuel :: String -> Int -> Int
+    howMuchToProduceFuel str i = fst $ getCost (parse str) M.empty (i, "FUEL")
+
+    trillion = 1000000000000
+
     main = do
         reactions <- readFile "14.txt"
-        print $ fst $ getCost (parse reactions) M.empty (1, "FUEL")
+        let one = howMuchToProduceFuel reactions 1
+        print $ one
+        let step = 1 -- let step = 100000
+        let start = 2371690 --let start = 0
+        let options = [start, (start+step)..]
 
-
-    -- IDEIAS:
-    -- Usar um Map (Elemento => Quantidade) para representar a quantidade de elementos reserva
-    -- OBS: teríamos um Map para cada Combinação de reações possível
+        print $ (\x -> x - step) $ fst $ head $ dropWhile ((<trillion) . snd) $ zip options 
+            $ howMuchToProduceFuel reactions <$> options
