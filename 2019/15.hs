@@ -50,9 +50,25 @@ module Day15 where
     initialMap :: DroneMap
     initialMap = M.singleton (0,0) 1
 
+    mapToDistance :: DroneMap -> Coord -> DroneMap -> DroneMap
+    mapToDistance maze origin distMap = foldr lookup distMap order
+        where 
+            order = reverse [U, R, D, L]
+            lookup :: Move -> DroneMap -> DroneMap
+            lookup direction mp = case mp M.!? origin' of
+                Just _ -> mp
+                Nothing -> if maze M.! origin' == 0 then mp else newMap
+                where
+                    distToOrigin = mp M.! origin
+                    origin' = origin # direction
+                    map' = M.insert origin' (distToOrigin + 1) mp
+                    newMap = mapToDistance maze origin' map'
+
     main :: IO ()
     main = do
         str <- readFile "15.txt"
         let pg = IC.strToProgram str []
-        let (newMap, final, ds) = search 1 [] pg initialMap (0,0)
-        print $ ds
+        let (completeMap, final, ds) = search 1 [] pg initialMap (0,0)
+        print $ minimum ds
+        let oxygenCoord = head $  M.keys $ M.filter (==2) completeMap
+        print $ maximum $ M.elems $ mapToDistance completeMap oxygenCoord (M.singleton oxygenCoord 0)
