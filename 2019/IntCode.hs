@@ -162,7 +162,7 @@ module IntCode where
     addInputs is (m, b, i, o) = (m, b, i ++ is, o)
     
     extendMem :: Memory -> Memory
-    extendMem (p, seq) = (p, S.fromList $ (toList seq) ++ replicate 500 0)
+    extendMem (p, seq) = (p, S.fromList $ (toList seq) ++ replicate 2000 0)
 
     strToProgram :: String -> Inputs -> ProgramState
     strToProgram s i = (extendMem (strToMemory s), 0, i, [])
