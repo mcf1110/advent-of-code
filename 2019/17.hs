@@ -2,7 +2,7 @@ module Day17 where
     import qualified Data.Matrix as Mx
     import qualified Data.Set as S
     import qualified IntCode as IC
-    import Data.List (inits, tails)
+    import Data.List (inits, tails, intersperse)
 
     import Debug.Trace
     import Data.Maybe (fromMaybe)
@@ -24,8 +24,6 @@ module Day17 where
     adjustment is = sum $ map (\(a,b) ->(a-1) * (b-1)) is
 
     part1 = adjustment . findCrossroads . toMatrix
-
-    t = "#######...#####\n#.....#...#...#\n#.....#...#...#\n......#...#...#\n......#...###.#\n......#.....#.#\n^########...#.#\n......#.#...#.#\n......#########\n........#...#..\n....#########..\n....#...#......\n....#...#......\n....#...#......\n....#####......"
 
     findChars :: Char -> String -> [Coord]
     findChars ch  str = [(x,y) | (y, row) <- zip [0..] l, (x, char) <- zip [0..] row, char == ch]
@@ -93,51 +91,56 @@ module Day17 where
                     maybeR = forward cs r
                     (turned, cmd) = autoTurn cs r
     
-    movesToCmd :: String -> [String]
-    movesToCmd str = go 0 str
+    parseMoves :: String -> Moves
+    parseMoves str = go 0 str
         where 
             go 0 [] = []
             go c [] = [show c]
             go c ('f':xs) = go (c+1) xs
             go 0 (x:xs) = [x]:(go 0 xs)
             go c (x:xs) = show c:[x]:(go 0 xs)
-    
-    countSublist :: [String] -> [String] -> Int 
-    countSublist haystack needle
-                | n > h = 0
-                | otherwise = c + (countSublist (tail haystack) needle)
-                where 
-                    h = length haystack
-                    n = length needle
-                    slice = take n haystack
-                    c = if slice == needle then 1 else 0
 
-    removeSublist :: [String] -> [String] -> [String] 
-    removeSublist haystack needle
-                | n > h = haystack
-                | slice == needle = removeSublist (drop n haystack) needle
-                | otherwise = (head haystack):(removeSublist (tail haystack) needle)
-                where 
-                    h = length haystack
-                    n = length needle
-                    slice = take n haystack
+    data Routine = A | B | C deriving Show
+    type Moves = [String]
+    data Answer = Answer { rs :: [Routine], a :: Moves, b :: Moves, c :: Moves } deriving Show
 
-    -- findLongestMove :: [String] -> [String]
-    findLongestMove moves = (move, removeSublist t move)
-        where 
-            options = take 10 $ tail $ zip (tails moves) (inits moves)
-            repetitions = map (uncurry countSublist) options
-            f a b = if (snd b) == 0 then a else b
-            ((t, move), _) = foldl1 f (zip options repetitions)
+    correct = Answer
+                [A,B,A,C,A,B,C,A,B,C]
+                ["R","8","R","10","R","10"]
+                ["R","4","R","8","R","10","R","12"]
+                ["R","12","R","4","L","12","L","12"]
+
+    get :: Routine -> Answer -> Moves
+    get A = a
+    get B = b
+    get C = c
+
+    expand :: Answer -> Moves
+    expand (Answer [] _ _ _) = []
+    expand an@(Answer (x:xs) a b c) = get x an ++ (expand $ Answer (xs) a b c)
+
+    commaSeparate :: [String] -> String
+    commaSeparate = concat . (intersperse ",")
+
+    toInput :: Answer -> String
+    toInput (Answer rs a b c) = 
+        (commaSeparate $ map show rs) ++ "\n" ++
+        (commaSeparate $ a) ++ "\n" ++
+        (commaSeparate $ b) ++ "\n" ++
+        (commaSeparate $ c) ++ "\nn\n"
 
     main = do
+        pg <- readFile "17.txt"
+        let t = (toEnum <$> IC.run pg []) :: String
+        
+        putStr t
+        putStrLn "Part 1:"
+        print $ part1 t
+        putStrLn "Part 2:"
         let r = createRobot t
-        let s = findScaffolds t
-        let moves = movesToCmd $ movesRobot s r
-
-        print $ findLongestMove moves
-        -- print $ countSublist moves <$> needles 
-        -- pg <- readFile "17.txt"
-        -- let x = (toEnum <$> IC.run pg []) :: String
-        -- print $ part1 x
-        -- putStrLn $ x
+            s = findScaffolds t
+            moves = parseMoves $ movesRobot s r
+            inputs = map fromEnum $ toInput $ correct
+            pg' = '2':(tail pg)
+            x = (IC.run pg' inputs)
+        print $ last x
