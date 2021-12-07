@@ -4,9 +4,6 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as MV
 import Control.Monad (forM_)
 
-p :: [Int]
-p = [3,4,3,1,2]
-
 main :: IO ()
 main = do
   input <- readFile "06.txt"
