@@ -57,13 +57,13 @@ testHypothesis n set = filter ((== set) . mask n)
     mask n str = S.fromList $ map snd $ filter fst $ zip (strToBits $ display n) str
 
 testNumber :: [S.Set Char] -> Int -> Mapping -> [Possibility] -> [(Mapping, [Possibility])]
-testNumber digits n currentMapping ps = map test fittingDigits
+testNumber digits n currentMapping ps = filter (not . null . snd) $ map test fittingDigits
   where
     fittingDigits = filter ((== (length . display) n) . S.size) $ digits \\ M.elems currentMapping
     test set = (M.insert n set currentMapping, testHypothesis n set ps)
 
 findMapping :: [S.Set Char] -> Mapping
-findMapping digits = fst $ head $ filter (not . null . snd) $ foldM (\(map, ps) n -> testNumber digits n map ps) (M.empty, allPossibilities) orderToTry
+findMapping digits = fst $ head $ foldM (\(map, ps) n -> testNumber digits n map ps) (M.empty, allPossibilities) orderToTry
   where
     orderToTry = [1, 7, 4, 2, 3, 5, 0, 6, 9, 8]
     allPossibilities = permutations ['a' .. 'g']
