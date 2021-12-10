@@ -1,5 +1,5 @@
 {-#LANGUAGE TupleSections #-}
-module Day08 where
+module Day09 where
 
 import Data.List (sort)
 import qualified Data.Matrix as M
